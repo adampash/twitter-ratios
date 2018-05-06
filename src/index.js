@@ -17,7 +17,7 @@ const cli = meow(
       --screenshot, -s  Screenshot tweet
  
     Examples
-      $ twitter-ratios https://twitter.com/ashleyfeinberg/status/976227867205013505 --screenshot
+      $ twitter-ratios https://twitter.com/PhilipRucker/status/899802454895861760 --screenshot
 `,
   {
     flags: {

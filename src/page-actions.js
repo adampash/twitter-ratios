@@ -7,7 +7,10 @@ const newBrowser = browser =>
   browser ||
   puppeteer.launch({
     ...(process.env.CHROME_EXECUTABLE_PATH
-      ? { executablePath: process.env.CHROME_EXECUTABLE_PATH }
+      ? {
+          executablePath: process.env.CHROME_EXECUTABLE_PATH,
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        }
       : {}),
   });
 

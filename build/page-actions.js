@@ -38,7 +38,10 @@ var _constants = require('./constants');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var newBrowser = function newBrowser(browser) {
-  return browser || _puppeteer2.default.launch((0, _extends4.default)({}, process.env.CHROME_EXECUTABLE_PATH ? { executablePath: process.env.CHROME_EXECUTABLE_PATH } : {}));
+  return browser || _puppeteer2.default.launch((0, _extends4.default)({}, process.env.CHROME_EXECUTABLE_PATH ? {
+    executablePath: process.env.CHROME_EXECUTABLE_PATH,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  } : {}));
 };
 
 var openPage = function () {

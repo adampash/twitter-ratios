@@ -21,7 +21,7 @@ var _pageActions = require('./page-actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var cli = (0, _meow2.default)('\n    A CLI for getting the stats of a tweet: replies, likes, and retweets. Can also return\n    a screenshot along with those stats. Uses puppeteer as a headless browser.\n\n    Usage\n      $ twitter-ratios <url> [options]\n \n    Options\n      --ratios, -r  Return ratios (default)\n      --screenshot, -s  Screenshot tweet\n \n    Examples\n      $ twitter-ratios https://twitter.com/ashleyfeinberg/status/976227867205013505 --screenshot\n', {
+var cli = (0, _meow2.default)('\n    A CLI for getting the stats of a tweet: replies, likes, and retweets. Can also return\n    a screenshot along with those stats. Uses puppeteer as a headless browser.\n\n    Usage\n      $ twitter-ratios <url> [options]\n \n    Options\n      --ratios, -r  Return ratios (default)\n      --screenshot, -s  Screenshot tweet\n \n    Examples\n      $ twitter-ratios https://twitter.com/PhilipRucker/status/899802454895861760 --screenshot\n', {
   flags: {
     ratios: {
       type: 'boolean',

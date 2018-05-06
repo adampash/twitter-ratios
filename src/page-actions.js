@@ -3,7 +3,13 @@ import uid from 'uid';
 
 import { KEY_MAP, ORIGINAL_TWEET, REPLY_SELECTOR, STATS_RE } from './constants';
 
-const newBrowser = browser => browser || puppeteer.launch();
+const newBrowser = browser =>
+  browser ||
+  puppeteer.launch({
+    ...(process.env.CHROME_EXECUTABLE_PATH
+      ? { executablePath: process.env.CHROME_EXECUTABLE_PATH }
+      : {}),
+  });
 
 const openPage = async ({ url, browser: tmpBrowser }) => {
   const browser = await newBrowser(tmpBrowser);

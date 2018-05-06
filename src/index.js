@@ -13,7 +13,7 @@ const cli = meow(
       $ twitter-ratios <url> [options]
  
     Options
-      --ratios, -r  Return ratios
+      --ratios, -r  Return ratios (default)
       --screenshot, -s  Screenshot tweet
  
     Examples
@@ -42,8 +42,9 @@ const main = async () => {
   if (cli.flags.screenshot) {
     const data = await getScreenshotAndRatios(url);
     console.log(JSON.stringify(data));
+    return;
   }
-  if (cli.flags.ratios) {
+  if (cli.flags.ratios || (!cli.flags.ratios && !cli.flags.screenshot)) {
     const data = await getRatiosFromUrl(url);
     console.log(JSON.stringify(data));
   }

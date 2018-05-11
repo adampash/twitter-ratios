@@ -28,7 +28,7 @@ const openPage = async ({ url, browser: tmpBrowser }) => {
 };
 
 const screenshotTweet = async page => {
-  await page.waitFor(ORIGINAL_TWEET);
+  await page.waitForSelector(ORIGINAL_TWEET, { timeout: 10000 });
   const tweet = await page.$(ORIGINAL_TWEET);
 
   // wait 5 seconds to give media time to load
@@ -40,7 +40,7 @@ const screenshotTweet = async page => {
 };
 
 export const getRatios = async page => {
-  await page.waitFor(REPLY_SELECTOR);
+  await page.waitForSelector(REPLY_SELECTOR, { timeout: 10000 });
   const statsStrings = await page.evaluate(() => {
     const SELECTOR =
       '.tweet.permalink-tweet .stream-item-footer [data-tweet-stat-count]';

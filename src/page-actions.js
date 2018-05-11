@@ -12,6 +12,7 @@ const newBrowser = browser =>
           args: ['--no-sandbox', '--disable-setuid-sandbox'],
         }
       : {}),
+    timeout: 10000 // must launch in 10 seconds
   });
 
 const openPage = async ({ url, browser: tmpBrowser }) => {
@@ -29,6 +30,10 @@ const openPage = async ({ url, browser: tmpBrowser }) => {
 const screenshotTweet = async page => {
   await page.waitFor(ORIGINAL_TWEET);
   const tweet = await page.$(ORIGINAL_TWEET);
+
+  // wait 2 seconds to give media time to load
+  await page.waitFor(2000);
+
   const screenshotPath = `${uid(10)}.png`;
   await tweet.screenshot({ path: screenshotPath });
   return screenshotPath;

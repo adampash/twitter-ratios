@@ -16,9 +16,14 @@ const newBrowser = browser =>
 
 const openPage = async ({ url, browser: tmpBrowser }) => {
   const browser = await newBrowser(tmpBrowser);
-  const page = await (await newBrowser(browser)).newPage();
-  await page.goto(url);
-  return { page, browser };
+  try {
+    const page = await (await newBrowser(browser)).newPage();
+    await page.goto(url);
+    return { page, browser };
+  } catch (e) {
+    browser.close();
+    throw e;
+  }
 };
 
 const screenshotTweet = async page => {

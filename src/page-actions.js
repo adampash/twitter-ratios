@@ -31,8 +31,8 @@ const screenshotTweet = async page => {
   await page.waitFor(ORIGINAL_TWEET);
   const tweet = await page.$(ORIGINAL_TWEET);
 
-  // wait 2 seconds to give media time to load
-  await page.waitFor(2000);
+  // wait 5 seconds to give media time to load
+  await page.waitFor(5000);
 
   const screenshotPath = `${uid(10)}.png`;
   await tweet.screenshot({ path: screenshotPath });

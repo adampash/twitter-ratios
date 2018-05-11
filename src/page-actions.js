@@ -55,15 +55,27 @@ export const getRatios = async page => {
 
 export const getScreenshotAndRatios = async url => {
   const { page, browser } = await openPage({ url });
-  const screenshot = await screenshotTweet(page);
-  const ratios = await getRatios(page);
-  await browser.close();
-  return { screenshot, ratios };
+  try {
+    const screenshot = await screenshotTweet(page);
+    const ratios = await getRatios(page);
+    await browser.close();
+    return { screenshot, ratios };
+  } catch (e) {
+    console.log(`Error:`, e);
+    browser.close();
+    return {};
+  }
 };
 
 export const getRatiosFromUrl = async url => {
   const { page, browser } = await openPage({ url });
-  const stats = await getRatios(page);
-  await browser.close();
-  return stats;
+  try {
+    const stats = await getRatios(page);
+    await browser.close();
+    return stats;
+  } catch (e) {
+    console.log(`Error:`, e);
+    browser.close();
+    return {};
+  }
 };

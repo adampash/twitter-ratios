@@ -3,6 +3,7 @@
 import meow from 'meow';
 
 import { getRatiosFromUrl, getScreenshotAndRatios } from './page-actions';
+import startServer from './server';
 
 const cli = meow(
   `
@@ -15,6 +16,7 @@ const cli = meow(
     Options
       --ratios, -r  Return ratios (default)
       --screenshot, -s  Screenshot tweet
+      --server Start server, use same browser instance for calls
  
     Examples
       $ twitter-ratios https://twitter.com/PhilipRucker/status/899802454895861760 --screenshot
@@ -29,12 +31,15 @@ const cli = meow(
         type: 'boolean',
         alias: 's',
       },
+      server: {
+        type: 'boolean',
+      },
     },
   }
 );
 
 const main = async () => {
-  if (cli.input.length === 0) {
+  if (cli.input.length === 0 && !cli.flags.server) {
     cli.showHelp();
     return;
   }
@@ -43,6 +48,25 @@ const main = async () => {
     const data = await getScreenshotAndRatios(url);
     console.log(JSON.stringify(data));
     return;
+  }
+  if (cli.flags.server) {
+    const { server, browser } = startServer();
+    process.on('SIGTERM', async () => {
+      console.log('closing gracefully');
+      server.close();
+      console.log('server closed; exiting');
+      await browser.close();
+      console.log('browser closed');
+      process.exit(0);
+    });
+    process.on('SIGINT', async () => {
+      console.log('closing gracefully');
+      server.close();
+      console.log('server closed; exiting');
+      await browser.close();
+      console.log('browser closed');
+      process.exit(0);
+    });
   }
   if (cli.flags.ratios || (!cli.flags.ratios && !cli.flags.screenshot)) {
     const data = await getRatiosFromUrl(url);

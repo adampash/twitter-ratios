@@ -12,22 +12,26 @@ const newBrowser = browser =>
           args: ['--no-sandbox', '--disable-setuid-sandbox'],
         }
       : {}),
-    timeout: 10000 // must launch in 10 seconds
+    timeout: 10000, // must launch in 10 seconds
   });
 
-const openPage = async ({ url, browser: tmpBrowser }) => {
+export const openPage = async ({
+  url,
+  browser: tmpBrowser,
+  closeOnError = true,
+}) => {
   const browser = await newBrowser(tmpBrowser);
   try {
     const page = await (await newBrowser(browser)).newPage();
     await page.goto(url);
     return { page, browser };
   } catch (e) {
-    browser.close();
+    if (closeOnError) browser.close();
     throw e;
   }
 };
 
-const screenshotTweet = async page => {
+export const screenshotTweet = async page => {
   await page.waitForSelector(ORIGINAL_TWEET, { timeout: 10000 });
   const tweet = await page.$(ORIGINAL_TWEET);
 

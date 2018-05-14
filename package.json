@@ -1,15 +1,17 @@
 {
   "name": "twitter-ratios",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "src/index.js",
   "license": "MIT",
   "bin": "build/index.js",
   "scripts": {
-    "build-and-run": "babel-node src/index.js",
+    "build-and-run-server": "yarn build && node build/index.js --server",
     "build": "babel src --out-dir build && chmod +x build/index.js"
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
     "meow": "^5.0.0",
     "puppeteer": "^1.3.0",
     "uid": "^0.0.2"

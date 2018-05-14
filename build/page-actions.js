@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getRatiosFromUrl = exports.getScreenshotAndRatios = exports.getRatios = undefined;
+exports.getRatiosFromUrl = exports.getScreenshotAndRatios = exports.getRatios = exports.screenshotTweet = exports.openPage = undefined;
 
 var _defineProperty2 = require('babel-runtime/helpers/defineProperty');
 
@@ -41,13 +41,17 @@ var newBrowser = function newBrowser(browser) {
   return browser || _puppeteer2.default.launch((0, _extends4.default)({}, process.env.CHROME_EXECUTABLE_PATH ? {
     executablePath: process.env.CHROME_EXECUTABLE_PATH,
     args: ['--no-sandbox', '--disable-setuid-sandbox']
-  } : {}));
+  } : {}, {
+    timeout: 10000 // must launch in 10 seconds
+  }));
 };
 
-var openPage = function () {
+var openPage = exports.openPage = function () {
   var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(_ref2) {
     var url = _ref2.url,
-        tmpBrowser = _ref2.browser;
+        tmpBrowser = _ref2.browser,
+        _ref2$closeOnError = _ref2.closeOnError,
+        closeOnError = _ref2$closeOnError === undefined ? true : _ref2$closeOnError;
     var browser, page;
     return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
@@ -58,27 +62,35 @@ var openPage = function () {
 
           case 2:
             browser = _context.sent;
-            _context.next = 5;
+            _context.prev = 3;
+            _context.next = 6;
             return newBrowser(browser);
 
-          case 5:
-            _context.next = 7;
+          case 6:
+            _context.next = 8;
             return _context.sent.newPage();
 
-          case 7:
+          case 8:
             page = _context.sent;
-            _context.next = 10;
+            _context.next = 11;
             return page.goto(url);
 
-          case 10:
+          case 11:
             return _context.abrupt('return', { page: page, browser: browser });
 
-          case 11:
+          case 14:
+            _context.prev = 14;
+            _context.t0 = _context['catch'](3);
+
+            if (closeOnError) browser.close();
+            throw _context.t0;
+
+          case 18:
           case 'end':
             return _context.stop();
         }
       }
-    }, _callee, undefined);
+    }, _callee, undefined, [[3, 14]]);
   }));
 
   return function openPage(_x) {
@@ -86,7 +98,7 @@ var openPage = function () {
   };
 }();
 
-var screenshotTweet = function () {
+var screenshotTweet = exports.screenshotTweet = function () {
   var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(page) {
     var tweet, screenshotPath;
     return _regenerator2.default.wrap(function _callee2$(_context2) {
@@ -94,7 +106,7 @@ var screenshotTweet = function () {
         switch (_context2.prev = _context2.next) {
           case 0:
             _context2.next = 2;
-            return page.waitFor(_constants.ORIGINAL_TWEET);
+            return page.waitForSelector(_constants.ORIGINAL_TWEET, { timeout: 10000 });
 
           case 2:
             _context2.next = 4;
@@ -102,14 +114,18 @@ var screenshotTweet = function () {
 
           case 4:
             tweet = _context2.sent;
+            _context2.next = 7;
+            return page.waitFor(6000);
+
+          case 7:
             screenshotPath = (0, _uid2.default)(10) + '.png';
-            _context2.next = 8;
+            _context2.next = 10;
             return tweet.screenshot({ path: screenshotPath });
 
-          case 8:
+          case 10:
             return _context2.abrupt('return', screenshotPath);
 
-          case 9:
+          case 11:
           case 'end':
             return _context2.stop();
         }
@@ -130,7 +146,7 @@ var getRatios = exports.getRatios = function () {
         switch (_context3.prev = _context3.next) {
           case 0:
             _context3.next = 2;
-            return page.waitFor(_constants.REPLY_SELECTOR);
+            return page.waitForSelector(_constants.REPLY_SELECTOR, { timeout: 10000 });
 
           case 2:
             _context3.next = 4;
@@ -187,28 +203,37 @@ var getScreenshotAndRatios = exports.getScreenshotAndRatios = function () {
             _ref6 = _context4.sent;
             page = _ref6.page;
             browser = _ref6.browser;
-            _context4.next = 7;
+            _context4.prev = 5;
+            _context4.next = 8;
             return screenshotTweet(page);
 
-          case 7:
+          case 8:
             screenshot = _context4.sent;
-            _context4.next = 10;
+            _context4.next = 11;
             return getRatios(page);
 
-          case 10:
+          case 11:
             ratios = _context4.sent;
-            _context4.next = 13;
+            _context4.next = 14;
             return browser.close();
 
-          case 13:
+          case 14:
             return _context4.abrupt('return', { screenshot: screenshot, ratios: ratios });
 
-          case 14:
+          case 17:
+            _context4.prev = 17;
+            _context4.t0 = _context4['catch'](5);
+
+            console.log('Error:', _context4.t0);
+            browser.close();
+            return _context4.abrupt('return', {});
+
+          case 22:
           case 'end':
             return _context4.stop();
         }
       }
-    }, _callee4, undefined);
+    }, _callee4, undefined, [[5, 17]]);
   }));
 
   return function getScreenshotAndRatios(_x4) {
@@ -231,23 +256,32 @@ var getRatiosFromUrl = exports.getRatiosFromUrl = function () {
             _ref8 = _context5.sent;
             page = _ref8.page;
             browser = _ref8.browser;
-            _context5.next = 7;
+            _context5.prev = 5;
+            _context5.next = 8;
             return getRatios(page);
 
-          case 7:
+          case 8:
             stats = _context5.sent;
-            _context5.next = 10;
+            _context5.next = 11;
             return browser.close();
 
-          case 10:
+          case 11:
             return _context5.abrupt('return', stats);
 
-          case 11:
+          case 14:
+            _context5.prev = 14;
+            _context5.t0 = _context5['catch'](5);
+
+            console.log('Error:', _context5.t0);
+            browser.close();
+            return _context5.abrupt('return', {});
+
+          case 19:
           case 'end':
             return _context5.stop();
         }
       }
-    }, _callee5, undefined);
+    }, _callee5, undefined, [[5, 14]]);
   }));
 
   return function getRatiosFromUrl(_x5) {

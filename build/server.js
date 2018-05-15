@@ -42,47 +42,67 @@ var startServer = function startServer() {
     timeout: 10000 // must launch in 10 seconds
   }));
 
+  app.get('/ping', function (req, res) {
+    res.send('pong');
+  });
+
   app.post('/ratios', function () {
     var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(req, res) {
-      var url, _ref2, page, ratios;
+      var page, url, _ref2, newPage, ratios;
 
       return _regenerator2.default.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              _context.prev = 0;
+              page = void 0;
+              _context.prev = 1;
               url = req.body.url;
-              _context.next = 4;
-              return (0, _pageActions.openPage)({ url: url, closeOnError: false, browser: browser });
+              _context.next = 5;
+              return (0, _pageActions.openPage)({
+                url: url,
+                closeOnError: false,
+                browser: browser
+              });
 
-            case 4:
+            case 5:
               _ref2 = _context.sent;
-              page = _ref2.page;
-              _context.next = 8;
+              newPage = _ref2.page;
+
+              page = newPage;
+              _context.next = 10;
               return (0, _pageActions.getRatios)(page);
 
-            case 8:
+            case 10:
               ratios = _context.sent;
-              _context.next = 11;
+              _context.next = 13;
               return page.close();
 
-            case 11:
+            case 13:
               res.json(ratios);
-              _context.next = 17;
+              _context.next = 22;
               break;
 
-            case 14:
-              _context.prev = 14;
-              _context.t0 = _context['catch'](0);
+            case 16:
+              _context.prev = 16;
+              _context.t0 = _context['catch'](1);
 
+              if (!page) {
+                _context.next = 21;
+                break;
+              }
+
+              _context.next = 21;
+              return page.close();
+
+            case 21:
               res.json({ error: true, msg: _context.t0.message });
 
-            case 17:
+            case 22:
             case 'end':
               return _context.stop();
           }
         }
-      }, _callee, undefined, [[0, 14]]);
+      }, _callee, undefined, [[1, 16]]);
     }));
 
     return function (_x, _x2) {
@@ -92,50 +112,66 @@ var startServer = function startServer() {
 
   app.post('/screenshot', function () {
     var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(req, res) {
-      var url, _ref4, page, ratios, screenshot;
+      var page, url, _ref4, newPage, ratios, screenshot;
 
       return _regenerator2.default.wrap(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              _context2.prev = 0;
+              page = void 0;
+              _context2.prev = 1;
               url = req.body.url;
-              _context2.next = 4;
-              return (0, _pageActions.openPage)({ url: url, closeOnError: false, browser: browser });
+              _context2.next = 5;
+              return (0, _pageActions.openPage)({
+                url: url,
+                closeOnError: false,
+                browser: browser
+              });
 
-            case 4:
+            case 5:
               _ref4 = _context2.sent;
-              page = _ref4.page;
-              _context2.next = 8;
+              newPage = _ref4.page;
+
+              page = newPage;
+              _context2.next = 10;
               return (0, _pageActions.getRatios)(page);
 
-            case 8:
+            case 10:
               ratios = _context2.sent;
-              _context2.next = 11;
+              _context2.next = 13;
               return (0, _pageActions.screenshotTweet)(page);
 
-            case 11:
+            case 13:
               screenshot = _context2.sent;
-              _context2.next = 14;
+              _context2.next = 16;
               return page.close();
 
-            case 14:
+            case 16:
               res.json({ screenshot: process.cwd() + '/' + screenshot, ratios: ratios });
-              _context2.next = 20;
+              _context2.next = 25;
               break;
 
-            case 17:
-              _context2.prev = 17;
-              _context2.t0 = _context2['catch'](0);
+            case 19:
+              _context2.prev = 19;
+              _context2.t0 = _context2['catch'](1);
 
+              if (!page) {
+                _context2.next = 24;
+                break;
+              }
+
+              _context2.next = 24;
+              return page.close();
+
+            case 24:
               res.json({ error: true, msg: _context2.t0.message });
 
-            case 20:
+            case 25:
             case 'end':
               return _context2.stop();
           }
         }
-      }, _callee2, undefined, [[0, 17]]);
+      }, _callee2, undefined, [[1, 19]]);
     }));
 
     return function (_x3, _x4) {

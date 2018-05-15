@@ -17,27 +17,45 @@ const startServer = () => {
     timeout: 10000, // must launch in 10 seconds
   });
 
+  app.get('/ping', (req, res) => {
+    res.send('pong');
+  });
+
   app.post('/ratios', async (req, res) => {
+    let page;
     try {
       const { url } = req.body;
-      const { page } = await openPage({ url, closeOnError: false, browser });
+      const { page: newPage } = await openPage({
+        url,
+        closeOnError: false,
+        browser,
+      });
+      page = newPage;
       const ratios = await getRatios(page);
       await page.close();
       res.json(ratios);
     } catch (e) {
+      if (page) await page.close();
       res.json({ error: true, msg: e.message });
     }
   });
 
   app.post('/screenshot', async (req, res) => {
+    let page;
     try {
       const { url } = req.body;
-      const { page } = await openPage({ url, closeOnError: false, browser });
+      const { page: newPage } = await openPage({
+        url,
+        closeOnError: false,
+        browser,
+      });
+      page = newPage;
       const ratios = await getRatios(page);
       const screenshot = await screenshotTweet(page);
       await page.close();
       res.json({ screenshot: `${process.cwd()}/${screenshot}`, ratios });
     } catch (e) {
+      if (page) await page.close();
       res.json({ error: true, msg: e.message });
     }
   });

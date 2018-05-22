@@ -16,6 +16,10 @@ var _extends2 = require('babel-runtime/helpers/extends');
 
 var _extends3 = _interopRequireDefault(_extends2);
 
+var _pQueue = require('p-queue');
+
+var _pQueue2 = _interopRequireDefault(_pQueue);
+
 var _bodyParser = require('body-parser');
 
 var _bodyParser2 = _interopRequireDefault(_bodyParser);
@@ -32,6 +36,8 @@ var _pageActions = require('./page-actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var queue = new _pQueue2.default({ concurrency: 3 });
+
 var startServer = function startServer() {
   var app = (0, _express2.default)();
   app.use(_bodyParser2.default.json());
@@ -47,62 +53,77 @@ var startServer = function startServer() {
   });
 
   app.post('/ratios', function () {
-    var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(req, res) {
-      var page, url, _ref2, newPage, ratios;
-
-      return _regenerator2.default.wrap(function _callee$(_context) {
+    var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(req, res) {
+      var page;
+      return _regenerator2.default.wrap(function _callee2$(_context2) {
         while (1) {
-          switch (_context.prev = _context.next) {
+          switch (_context2.prev = _context2.next) {
             case 0:
               page = void 0;
-              _context.prev = 1;
-              url = req.body.url;
-              _context.next = 5;
-              return (0, _pageActions.openPage)({
-                url: url,
-                closeOnError: false,
-                browser: browser
-              });
+              _context2.next = 3;
+              return queue.add((0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
+                var url, _ref3, newPage, ratios;
 
-            case 5:
-              _ref2 = _context.sent;
-              newPage = _ref2.page;
+                return _regenerator2.default.wrap(function _callee$(_context) {
+                  while (1) {
+                    switch (_context.prev = _context.next) {
+                      case 0:
+                        _context.prev = 0;
+                        url = req.body.url;
+                        _context.next = 4;
+                        return (0, _pageActions.openPage)({
+                          url: url,
+                          closeOnError: false,
+                          browser: browser
+                        });
 
-              page = newPage;
-              _context.next = 10;
-              return (0, _pageActions.getRatios)(page);
+                      case 4:
+                        _ref3 = _context.sent;
+                        newPage = _ref3.page;
 
-            case 10:
-              ratios = _context.sent;
-              _context.next = 13;
-              return page.close();
+                        page = newPage;
+                        _context.next = 9;
+                        return (0, _pageActions.getRatios)(page);
 
-            case 13:
-              res.json(ratios);
-              _context.next = 22;
-              break;
+                      case 9:
+                        ratios = _context.sent;
+                        _context.next = 12;
+                        return page.close();
 
-            case 16:
-              _context.prev = 16;
-              _context.t0 = _context['catch'](1);
+                      case 12:
+                        res.json(ratios);
+                        _context.next = 21;
+                        break;
 
-              if (!page) {
-                _context.next = 21;
-                break;
-              }
+                      case 15:
+                        _context.prev = 15;
+                        _context.t0 = _context['catch'](0);
 
-              _context.next = 21;
-              return page.close();
+                        if (!page) {
+                          _context.next = 20;
+                          break;
+                        }
 
-            case 21:
-              res.json({ error: true, msg: _context.t0.message });
+                        _context.next = 20;
+                        return page.close();
 
-            case 22:
+                      case 20:
+                        res.json({ error: true, msg: _context.t0.message });
+
+                      case 21:
+                      case 'end':
+                        return _context.stop();
+                    }
+                  }
+                }, _callee, undefined, [[0, 15]]);
+              })));
+
+            case 3:
             case 'end':
-              return _context.stop();
+              return _context2.stop();
           }
         }
-      }, _callee, undefined, [[1, 16]]);
+      }, _callee2, undefined);
     }));
 
     return function (_x, _x2) {
@@ -111,71 +132,86 @@ var startServer = function startServer() {
   }());
 
   app.post('/screenshot', function () {
-    var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(req, res) {
-      var page, url, _ref4, newPage, ratios, screenshot;
-
-      return _regenerator2.default.wrap(function _callee2$(_context2) {
+    var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(req, res) {
+      var page;
+      return _regenerator2.default.wrap(function _callee4$(_context4) {
         while (1) {
-          switch (_context2.prev = _context2.next) {
+          switch (_context4.prev = _context4.next) {
             case 0:
               page = void 0;
-              _context2.prev = 1;
-              url = req.body.url;
-              _context2.next = 5;
-              return (0, _pageActions.openPage)({
-                url: url,
-                closeOnError: false,
-                browser: browser
-              });
+              _context4.next = 3;
+              return queue.add((0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3() {
+                var url, _ref6, newPage, ratios, screenshot;
 
-            case 5:
-              _ref4 = _context2.sent;
-              newPage = _ref4.page;
+                return _regenerator2.default.wrap(function _callee3$(_context3) {
+                  while (1) {
+                    switch (_context3.prev = _context3.next) {
+                      case 0:
+                        _context3.prev = 0;
+                        url = req.body.url;
+                        _context3.next = 4;
+                        return (0, _pageActions.openPage)({
+                          url: url,
+                          closeOnError: false,
+                          browser: browser
+                        });
 
-              page = newPage;
-              _context2.next = 10;
-              return (0, _pageActions.getRatios)(page);
+                      case 4:
+                        _ref6 = _context3.sent;
+                        newPage = _ref6.page;
 
-            case 10:
-              ratios = _context2.sent;
-              _context2.next = 13;
-              return (0, _pageActions.screenshotTweet)(page);
+                        page = newPage;
+                        _context3.next = 9;
+                        return (0, _pageActions.getRatios)(page);
 
-            case 13:
-              screenshot = _context2.sent;
-              _context2.next = 16;
-              return page.close();
+                      case 9:
+                        ratios = _context3.sent;
+                        _context3.next = 12;
+                        return (0, _pageActions.screenshotTweet)(page);
 
-            case 16:
-              res.json({ screenshot: process.cwd() + '/' + screenshot, ratios: ratios });
-              _context2.next = 25;
-              break;
+                      case 12:
+                        screenshot = _context3.sent;
+                        _context3.next = 15;
+                        return page.close();
 
-            case 19:
-              _context2.prev = 19;
-              _context2.t0 = _context2['catch'](1);
+                      case 15:
+                        res.json({ screenshot: process.cwd() + '/' + screenshot, ratios: ratios });
+                        _context3.next = 24;
+                        break;
 
-              if (!page) {
-                _context2.next = 24;
-                break;
-              }
+                      case 18:
+                        _context3.prev = 18;
+                        _context3.t0 = _context3['catch'](0);
 
-              _context2.next = 24;
-              return page.close();
+                        if (!page) {
+                          _context3.next = 23;
+                          break;
+                        }
 
-            case 24:
-              res.json({ error: true, msg: _context2.t0.message });
+                        _context3.next = 23;
+                        return page.close();
 
-            case 25:
+                      case 23:
+                        res.json({ error: true, msg: _context3.t0.message });
+
+                      case 24:
+                      case 'end':
+                        return _context3.stop();
+                    }
+                  }
+                }, _callee3, undefined, [[0, 18]]);
+              })));
+
+            case 3:
             case 'end':
-              return _context2.stop();
+              return _context4.stop();
           }
         }
-      }, _callee2, undefined, [[1, 19]]);
+      }, _callee4, undefined);
     }));
 
     return function (_x3, _x4) {
-      return _ref3.apply(this, arguments);
+      return _ref4.apply(this, arguments);
     };
   }());
 

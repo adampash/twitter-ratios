@@ -1,8 +1,11 @@
+import PQueue from 'p-queue';
 import bodyParser from 'body-parser';
 import express from 'express';
 import puppeteer from 'puppeteer';
 
 import { getRatios, openPage, screenshotTweet } from './page-actions';
+
+const queue = new PQueue({ concurrency: 3 });
 
 const startServer = () => {
   const app = express();
@@ -23,41 +26,45 @@ const startServer = () => {
 
   app.post('/ratios', async (req, res) => {
     let page;
-    try {
-      const { url } = req.body;
-      const { page: newPage } = await openPage({
-        url,
-        closeOnError: false,
-        browser,
-      });
-      page = newPage;
-      const ratios = await getRatios(page);
-      await page.close();
-      res.json(ratios);
-    } catch (e) {
-      if (page) await page.close();
-      res.json({ error: true, msg: e.message });
-    }
+    await queue.add(async () => {
+      try {
+        const { url } = req.body;
+        const { page: newPage } = await openPage({
+          url,
+          closeOnError: false,
+          browser,
+        });
+        page = newPage;
+        const ratios = await getRatios(page);
+        await page.close();
+        res.json(ratios);
+      } catch (e) {
+        if (page) await page.close();
+        res.json({ error: true, msg: e.message });
+      }
+    });
   });
 
   app.post('/screenshot', async (req, res) => {
     let page;
-    try {
-      const { url } = req.body;
-      const { page: newPage } = await openPage({
-        url,
-        closeOnError: false,
-        browser,
-      });
-      page = newPage;
-      const ratios = await getRatios(page);
-      const screenshot = await screenshotTweet(page);
-      await page.close();
-      res.json({ screenshot: `${process.cwd()}/${screenshot}`, ratios });
-    } catch (e) {
-      if (page) await page.close();
-      res.json({ error: true, msg: e.message });
-    }
+    await queue.add(async () => {
+      try {
+        const { url } = req.body;
+        const { page: newPage } = await openPage({
+          url,
+          closeOnError: false,
+          browser,
+        });
+        page = newPage;
+        const ratios = await getRatios(page);
+        const screenshot = await screenshotTweet(page);
+        await page.close();
+        res.json({ screenshot: `${process.cwd()}/${screenshot}`, ratios });
+      } catch (e) {
+        if (page) await page.close();
+        res.json({ error: true, msg: e.message });
+      }
+    });
   });
 
   console.log('Starting server on port 3000');

@@ -1,6 +1,6 @@
 {
   "name": "twitter-ratios",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "main": "src/index.js",
   "license": "MIT",
   "bin": "build/index.js",
@@ -13,6 +13,7 @@
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "meow": "^5.0.0",
+    "p-queue": "^2.4.2",
     "puppeteer": "^1.3.0",
     "uid": "^0.0.2"
   },

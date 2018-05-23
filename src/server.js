@@ -5,7 +5,7 @@ import puppeteer from 'puppeteer';
 
 import { getRatios, openPage, screenshotTweet } from './page-actions';
 
-const queue = new PQueue({ concurrency: 2 });
+const queue = new PQueue({ concurrency: 5 });
 
 const startServer = () => {
   const app = express();

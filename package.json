@@ -1,6 +1,6 @@
 {
   "name": "twitter-ratios",
-  "version": "1.0.10",
+  "version": "1.0.12",
   "main": "src/index.js",
   "license": "MIT",
   "bin": "build/index.js",

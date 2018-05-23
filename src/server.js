@@ -5,7 +5,7 @@ import puppeteer from 'puppeteer';
 
 import { getRatios, openPage, screenshotTweet } from './page-actions';
 
-const queue = new PQueue({ concurrency: 3 });
+const queue = new PQueue({ concurrency: 2 });
 
 const startServer = () => {
   const app = express();
@@ -22,6 +22,10 @@ const startServer = () => {
 
   app.get('/ping', (req, res) => {
     res.send('pong');
+  });
+
+  app.get('/queue', (req, res) => {
+    res.send(`queue len: ${queue.size}; queue pending: ${queue.pending}`);
   });
 
   app.post('/ratios', async (req, res) => {

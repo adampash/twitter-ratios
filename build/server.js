@@ -36,7 +36,7 @@ var _pageActions = require('./page-actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var queue = new _pQueue2.default({ concurrency: 3 });
+var queue = new _pQueue2.default({ concurrency: 2 });
 
 var startServer = function startServer() {
   var app = (0, _express2.default)();
@@ -50,6 +50,10 @@ var startServer = function startServer() {
 
   app.get('/ping', function (req, res) {
     res.send('pong');
+  });
+
+  app.get('/queue', function (req, res) {
+    res.send('queue len: ' + queue.size + '; queue pending: ' + queue.pending);
   });
 
   app.post('/ratios', function () {

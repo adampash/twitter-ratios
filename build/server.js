@@ -36,7 +36,7 @@ var _pageActions = require('./page-actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var queue = new _pQueue2.default({ concurrency: 5 });
+var queue = new _pQueue2.default({ concurrency: 8 });
 
 var startServer = function startServer() {
   var app = (0, _express2.default)();

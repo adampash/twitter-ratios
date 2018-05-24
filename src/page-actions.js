@@ -24,7 +24,7 @@ export const openPage = async ({
   try {
     const page = await (await newBrowser(browser)).newPage();
     const response = await page.goto(url);
-    if (response.headers().status !== '200') {
+    if (response.headers().status.split(/\n/)[0] !== '200') {
       throw new Error('Page not found');
     }
     return { page, browser };

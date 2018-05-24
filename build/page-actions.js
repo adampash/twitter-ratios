@@ -78,7 +78,7 @@ var openPage = exports.openPage = function () {
           case 11:
             response = _context.sent;
 
-            if (!(response.headers().status !== '200')) {
+            if (!(response.headers().status.split(/\n/)[0] !== '200')) {
               _context.next = 14;
               break;
             }

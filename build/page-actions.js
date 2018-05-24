@@ -52,7 +52,7 @@ var openPage = exports.openPage = function () {
         tmpBrowser = _ref2.browser,
         _ref2$closeOnError = _ref2.closeOnError,
         closeOnError = _ref2$closeOnError === undefined ? true : _ref2$closeOnError;
-    var browser, page;
+    var browser, page, response;
     return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -76,21 +76,31 @@ var openPage = exports.openPage = function () {
             return page.goto(url);
 
           case 11:
-            return _context.abrupt('return', { page: page, browser: browser });
+            response = _context.sent;
+
+            if (!(response.headers().status !== '200')) {
+              _context.next = 14;
+              break;
+            }
+
+            throw new Error('Page not found');
 
           case 14:
-            _context.prev = 14;
+            return _context.abrupt('return', { page: page, browser: browser });
+
+          case 17:
+            _context.prev = 17;
             _context.t0 = _context['catch'](3);
 
             if (closeOnError) browser.close();
             throw _context.t0;
 
-          case 18:
+          case 21:
           case 'end':
             return _context.stop();
         }
       }
-    }, _callee, undefined, [[3, 14]]);
+    }, _callee, undefined, [[3, 17]]);
   }));
 
   return function openPage(_x) {

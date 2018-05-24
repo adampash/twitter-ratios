@@ -23,7 +23,10 @@ export const openPage = async ({
   const browser = await newBrowser(tmpBrowser);
   try {
     const page = await (await newBrowser(browser)).newPage();
-    await page.goto(url);
+    const response = await page.goto(url);
+    if (response.headers().status !== '200') {
+      throw new Error('Page not found');
+    }
     return { page, browser };
   } catch (e) {
     if (closeOnError) browser.close();

@@ -104,7 +104,7 @@ var startServer = function startServer() {
 
                       case 14:
                         res.json(ratios);
-                        _context.next = 24;
+                        _context.next = 31;
                         break;
 
                       case 17:
@@ -121,9 +121,27 @@ var startServer = function startServer() {
 
                       case 22:
                         console.log('error!', _context.t0);
+
+                        if (!(_context.t0.message.trim() === 'Error: not opened')) {
+                          _context.next = 30;
+                          break;
+                        }
+
+                        console.log('Browser closed unexpectedly; reopening, running again');
+                        _context.next = 27;
+                        return browser.close();
+
+                      case 27:
+                        _context.next = 29;
+                        return browser.open();
+
+                      case 29:
+                        runRatios(req, res, url);
+
+                      case 30:
                         res.json({ error: true, msg: _context.t0.message });
 
-                      case 24:
+                      case 31:
                       case 'end':
                         return _context.stop();
                     }

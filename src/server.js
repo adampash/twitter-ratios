@@ -24,7 +24,8 @@ const startServer = () => {
     res.send('pong');
   });
 
-  const queueCount = () => `queue len: ${queue.size}; queue pending: ${queue.pending}`
+  const queueCount = () =>
+    `queue len: ${queue.size}; queue pending: ${queue.pending}`;
   app.get('/queue', (req, res) => {
     res.send(queueCount());
   });
@@ -49,6 +50,12 @@ const startServer = () => {
       } catch (e) {
         if (page) await page.close();
         console.log('error!', e);
+        if (e.message.trim() === 'Error: not opened') {
+          console.log('Browser closed unexpectedly; reopening, running again');
+          await browser.close();
+          await browser.open();
+          runRatios(req, res, url);
+        }
         res.json({ error: true, msg: e.message });
       }
     });

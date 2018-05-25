@@ -36,6 +36,7 @@ var _pageActions = require('./page-actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var logger = require('logger').createLogger();
 var queue = new _pQueue2.default({ concurrency: 1 });
 var pagesOpened = 0;
 var browser = void 0;
@@ -111,7 +112,7 @@ var startServer = function () {
 
                         _context2.prev = 1;
 
-                        console.log('closing and reopening browser');
+                        logger.info('closing and reopening browser');
                         _context2.next = 5;
                         return relaunchBrowser();
 
@@ -124,7 +125,7 @@ var startServer = function () {
                         _context2.prev = 8;
                         _context2.t0 = _context2['catch'](1);
 
-                        console.log('Error restarting browser:', _context2.t0);
+                        logger.info('Error restarting browser:', _context2.t0);
 
                       case 11:
                         pagesOpened += 1;
@@ -188,50 +189,52 @@ var startServer = function () {
 
                                 case 9:
                                   ratios = _context3.sent;
-                                  _context3.next = 12;
+
+                                  logger.info('ratios', ratios);
+                                  _context3.next = 13;
                                   return page.close();
 
-                                case 12:
+                                case 13:
                                   res.json(ratios);
-                                  _context3.next = 27;
+                                  _context3.next = 28;
                                   break;
 
-                                case 15:
-                                  _context3.prev = 15;
+                                case 16:
+                                  _context3.prev = 16;
                                   _context3.t0 = _context3['catch'](1);
 
                                   if (!page) {
-                                    _context3.next = 20;
+                                    _context3.next = 21;
                                     break;
                                   }
 
-                                  _context3.next = 20;
+                                  _context3.next = 21;
                                   return page.close();
 
-                                case 20:
-                                  console.log('error!', _context3.t0);
+                                case 21:
+                                  logger.info('error!', _context3.t0);
 
                                   if (!(_context3.t0.message.trim() === 'Error: not opened')) {
-                                    _context3.next = 26;
+                                    _context3.next = 27;
                                     break;
                                   }
 
-                                  console.log('Browser closed unexpectedly; reopening, running again');
-                                  _context3.next = 25;
+                                  logger.info('Browser closed unexpectedly; reopening, running again');
+                                  _context3.next = 26;
                                   return relaunchBrowser();
 
-                                case 25:
+                                case 26:
                                   runRatios(req, res, url);
 
-                                case 26:
+                                case 27:
                                   res.json({ error: true, msg: _context3.t0.message });
 
-                                case 27:
+                                case 28:
                                 case 'end':
                                   return _context3.stop();
                               }
                             }
-                          }, _callee3, undefined, [[1, 15]]);
+                          }, _callee3, undefined, [[1, 16]]);
                         }))));
 
                       case 2:
@@ -311,7 +314,7 @@ var startServer = function () {
                                     break;
                                   }
 
-                                  console.log('Browser closed unexpectedly; reopening, running again');
+                                  logger.info('Browser closed unexpectedly; reopening, running again');
                                   _context5.next = 27;
                                   return relaunchBrowser();
 
@@ -356,7 +359,7 @@ var startServer = function () {
               return runScreenshot(req, res, req.query.url);
             });
 
-            console.log('Starting server on port 3000');
+            logger.info('Starting server on port 3000');
             server = app.listen(3000);
             return _context7.abrupt('return', { server: server, browser: browser });
 

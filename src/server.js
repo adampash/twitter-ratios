@@ -5,6 +5,7 @@ import puppeteer from 'puppeteer';
 
 import { getRatios, openPage, screenshotTweet } from './page-actions';
 
+const logger = require('logger').createLogger();
 const queue = new PQueue({ concurrency: 1 });
 let pagesOpened = 0;
 let browser;
@@ -34,11 +35,11 @@ const startServer = async () => {
   const countPages = async fn => {
     if (pagesOpened > 10) {
       try {
-        console.log('closing and reopening browser');
+        logger.info('closing and reopening browser');
         await relaunchBrowser();
         pagesOpened = 0;
       } catch (e) {
-        console.log(`Error restarting browser:`, e);
+        logger.info(`Error restarting browser:`, e);
       }
     }
     pagesOpened += 1;
@@ -67,13 +68,14 @@ const startServer = async () => {
           });
           page = newPage;
           const ratios = await getRatios(page);
+          logger.info(`ratios`, ratios);
           await page.close();
           res.json(ratios);
         } catch (e) {
           if (page) await page.close();
-          console.log('error!', e);
+          logger.info('error!', e);
           if (e.message.trim() === 'Error: not opened') {
-            console.log(
+            logger.info(
               'Browser closed unexpectedly; reopening, running again'
             );
             await relaunchBrowser();
@@ -102,7 +104,7 @@ const startServer = async () => {
         } catch (e) {
           if (page) await page.close();
           if (e.message.trim() === 'Error: not opened') {
-            console.log(
+            logger.info(
               'Browser closed unexpectedly; reopening, running again'
             );
             await relaunchBrowser();
@@ -120,7 +122,7 @@ const startServer = async () => {
   app.post('/screenshot', (req, res) => runScreenshot(req, res, req.body.url));
   app.get('/screenshot', (req, res) => runScreenshot(req, res, req.query.url));
 
-  console.log('Starting server on port 3000');
+  logger.info('Starting server on port 3000');
   const server = app.listen(3000);
   return { server, browser };
 };

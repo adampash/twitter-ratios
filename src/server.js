@@ -79,8 +79,8 @@ const startServer = () => {
     });
   });
 
-  console.log('Starting server on port 3001');
-  const server = app.listen(3001);
+  console.log('Starting server on port 3000');
+  const server = app.listen(3000);
   return { server, browser };
 };
 

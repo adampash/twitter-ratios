@@ -235,8 +235,8 @@ var startServer = function startServer() {
     };
   }());
 
-  console.log('Starting server on port 3001');
-  var server = app.listen(3001);
+  console.log('Starting server on port 3000');
+  var server = app.listen(3000);
   return { server: server, browser: browser };
 };
 

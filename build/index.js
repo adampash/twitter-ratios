@@ -83,14 +83,14 @@ var main = function () {
                   while (1) {
                     switch (_context.prev = _context.next) {
                       case 0:
-                        console.log('closing gracefully');
-                        server.close();
-                        console.log('server closed; exiting');
-                        _context.next = 5;
+                        console.log('SIGTERM: closing gracefully');
+                        _context.next = 3;
                         return browser.close();
 
-                      case 5:
+                      case 3:
                         console.log('browser closed');
+                        server.close();
+                        console.log('server closed; exiting');
                         process.exit(0);
 
                       case 7:
@@ -105,14 +105,14 @@ var main = function () {
                   while (1) {
                     switch (_context2.prev = _context2.next) {
                       case 0:
-                        console.log('closing gracefully');
-                        server.close();
-                        console.log('server closed; exiting');
-                        _context2.next = 5;
+                        console.log('SIGINT: closing gracefully');
+                        _context2.next = 3;
                         return browser.close();
 
-                      case 5:
+                      case 3:
                         console.log('browser closed');
+                        server.close();
+                        console.log('server closed; exiting');
                         process.exit(0);
 
                       case 7:

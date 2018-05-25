@@ -36,226 +36,341 @@ var _pageActions = require('./page-actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var queue = new _pQueue2.default({ concurrency: 8 });
+var queue = new _pQueue2.default({ concurrency: 1 });
+var pagesOpened = 0;
+var browser = void 0;
 
-var startServer = function startServer() {
-  var app = (0, _express2.default)();
-  app.use(_bodyParser2.default.json());
-  var browser = _puppeteer2.default.launch((0, _extends3.default)({}, process.env.CHROME_EXECUTABLE_PATH ? {
+var launchBrowser = function launchBrowser() {
+  return _puppeteer2.default.launch((0, _extends3.default)({}, process.env.CHROME_EXECUTABLE_PATH ? {
     executablePath: process.env.CHROME_EXECUTABLE_PATH,
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   } : {}, {
     timeout: 10000 // must launch in 10 seconds
   }));
+};
 
-  app.get('/ping', function (req, res) {
-    res.send('pong');
-  });
+var relaunchBrowser = function () {
+  var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
+    return _regenerator2.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            if (!browser) {
+              _context.next = 3;
+              break;
+            }
 
-  var queueCount = function queueCount() {
-    return 'queue len: ' + queue.size + '; queue pending: ' + queue.pending;
+            _context.next = 3;
+            return browser.close();
+
+          case 3:
+            _context.next = 5;
+            return launchBrowser();
+
+          case 5:
+            browser = _context.sent;
+
+          case 6:
+          case 'end':
+            return _context.stop();
+        }
+      }
+    }, _callee, undefined);
+  }));
+
+  return function relaunchBrowser() {
+    return _ref.apply(this, arguments);
   };
-  app.get('/queue', function (req, res) {
-    res.send(queueCount());
-  });
+}();
 
-  var runRatios = function () {
-    var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(req, res, url) {
-      var page;
-      return _regenerator2.default.wrap(function _callee2$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              page = void 0;
-              _context2.next = 3;
-              return queue.add((0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
-                var _ref3, newPage, ratios;
+var startServer = function () {
+  var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee7() {
+    var app, countPages, queueCount, runRatios, runScreenshot, server;
+    return _regenerator2.default.wrap(function _callee7$(_context7) {
+      while (1) {
+        switch (_context7.prev = _context7.next) {
+          case 0:
+            app = (0, _express2.default)();
 
-                return _regenerator2.default.wrap(function _callee$(_context) {
+            app.use(_bodyParser2.default.json());
+
+            _context7.next = 4;
+            return relaunchBrowser();
+
+          case 4:
+            countPages = function () {
+              var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(fn) {
+                return _regenerator2.default.wrap(function _callee2$(_context2) {
                   while (1) {
-                    switch (_context.prev = _context.next) {
+                    switch (_context2.prev = _context2.next) {
                       case 0:
-                        _context.prev = 0;
+                        if (!(pagesOpened > 10)) {
+                          _context2.next = 11;
+                          break;
+                        }
 
-                        console.log('running ratio...');
-                        console.log('queueCount()', queueCount());
-                        // const { url } = req.body;
-                        _context.next = 5;
-                        return (0, _pageActions.openPage)({
-                          url: url,
-                          closeOnError: false,
-                          browser: browser
-                        });
+                        _context2.prev = 1;
+
+                        console.log('closing and reopening browser');
+                        _context2.next = 5;
+                        return relaunchBrowser();
 
                       case 5:
-                        _ref3 = _context.sent;
-                        newPage = _ref3.page;
-
-                        page = newPage;
-                        _context.next = 10;
-                        return (0, _pageActions.getRatios)(page);
-
-                      case 10:
-                        ratios = _context.sent;
-
-                        console.log('ratios', ratios);
-                        _context.next = 14;
-                        return page.close();
-
-                      case 14:
-                        res.json(ratios);
-                        _context.next = 31;
+                        pagesOpened = 0;
+                        _context2.next = 11;
                         break;
 
-                      case 17:
-                        _context.prev = 17;
-                        _context.t0 = _context['catch'](0);
+                      case 8:
+                        _context2.prev = 8;
+                        _context2.t0 = _context2['catch'](1);
 
-                        if (!page) {
-                          _context.next = 22;
-                          break;
-                        }
+                        console.log('Error restarting browser:', _context2.t0);
 
-                        _context.next = 22;
-                        return page.close();
+                      case 11:
+                        pagesOpened += 1;
+                        fn();
 
-                      case 22:
-                        console.log('error!', _context.t0);
-
-                        if (!(_context.t0.message.trim() === 'Error: not opened')) {
-                          _context.next = 30;
-                          break;
-                        }
-
-                        console.log('Browser closed unexpectedly; reopening, running again');
-                        _context.next = 27;
-                        return browser.close();
-
-                      case 27:
-                        _context.next = 29;
-                        return browser.open();
-
-                      case 29:
-                        runRatios(req, res, url);
-
-                      case 30:
-                        res.json({ error: true, msg: _context.t0.message });
-
-                      case 31:
+                      case 13:
                       case 'end':
-                        return _context.stop();
+                        return _context2.stop();
                     }
                   }
-                }, _callee, undefined, [[0, 17]]);
-              })));
+                }, _callee2, undefined, [[1, 8]]);
+              }));
 
-            case 3:
-            case 'end':
-              return _context2.stop();
-          }
-        }
-      }, _callee2, undefined);
-    }));
+              return function countPages(_x) {
+                return _ref3.apply(this, arguments);
+              };
+            }();
 
-    return function runRatios(_x, _x2, _x3) {
-      return _ref.apply(this, arguments);
-    };
-  }();
+            app.get('/ping', function (req, res) {
+              res.send('pong');
+            });
 
-  app.post('/ratios', function (req, res) {
-    return runRatios(req, res, req.body.url);
-  });
-  app.get('/ratios', function (req, res) {
-    return runRatios(req, res, req.query.url);
-  });
+            queueCount = function queueCount() {
+              return 'queue len: ' + queue.size + '; queue pending: ' + queue.pending;
+            };
 
-  app.post('/screenshot', function () {
-    var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(req, res) {
-      var page;
-      return _regenerator2.default.wrap(function _callee4$(_context4) {
-        while (1) {
-          switch (_context4.prev = _context4.next) {
-            case 0:
-              page = void 0;
-              _context4.next = 3;
-              return queue.add((0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3() {
-                var url, _ref6, newPage, ratios, screenshot;
+            app.get('/queue', function (req, res) {
+              res.send(queueCount());
+            });
 
-                return _regenerator2.default.wrap(function _callee3$(_context3) {
+            runRatios = function () {
+              var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(req, res, url) {
+                return _regenerator2.default.wrap(function _callee4$(_context4) {
                   while (1) {
-                    switch (_context3.prev = _context3.next) {
+                    switch (_context4.prev = _context4.next) {
                       case 0:
-                        _context3.prev = 0;
-                        url = req.body.url;
-                        _context3.next = 4;
-                        return (0, _pageActions.openPage)({
-                          url: url,
-                          closeOnError: false,
-                          browser: browser
-                        });
+                        _context4.next = 2;
+                        return queue.add(countPages((0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3() {
+                          var page, _ref6, newPage, ratios;
 
-                      case 4:
-                        _ref6 = _context3.sent;
-                        newPage = _ref6.page;
+                          return _regenerator2.default.wrap(function _callee3$(_context3) {
+                            while (1) {
+                              switch (_context3.prev = _context3.next) {
+                                case 0:
+                                  page = void 0;
+                                  _context3.prev = 1;
+                                  _context3.next = 4;
+                                  return (0, _pageActions.openPage)({
+                                    url: url,
+                                    closeOnError: false,
+                                    browser: browser
+                                  });
 
-                        page = newPage;
-                        _context3.next = 9;
-                        return (0, _pageActions.getRatios)(page);
+                                case 4:
+                                  _ref6 = _context3.sent;
+                                  newPage = _ref6.page;
 
-                      case 9:
-                        ratios = _context3.sent;
-                        _context3.next = 12;
-                        return (0, _pageActions.screenshotTweet)(page);
+                                  page = newPage;
+                                  _context3.next = 9;
+                                  return (0, _pageActions.getRatios)(page);
 
-                      case 12:
-                        screenshot = _context3.sent;
-                        _context3.next = 15;
-                        return page.close();
+                                case 9:
+                                  ratios = _context3.sent;
+                                  _context3.next = 12;
+                                  return page.close();
 
-                      case 15:
-                        res.json({ screenshot: process.cwd() + '/' + screenshot, ratios: ratios });
-                        _context3.next = 24;
-                        break;
+                                case 12:
+                                  res.json(ratios);
+                                  _context3.next = 27;
+                                  break;
 
-                      case 18:
-                        _context3.prev = 18;
-                        _context3.t0 = _context3['catch'](0);
+                                case 15:
+                                  _context3.prev = 15;
+                                  _context3.t0 = _context3['catch'](1);
 
-                        if (!page) {
-                          _context3.next = 23;
-                          break;
-                        }
+                                  if (!page) {
+                                    _context3.next = 20;
+                                    break;
+                                  }
 
-                        _context3.next = 23;
-                        return page.close();
+                                  _context3.next = 20;
+                                  return page.close();
 
-                      case 23:
-                        res.json({ error: true, msg: _context3.t0.message });
+                                case 20:
+                                  console.log('error!', _context3.t0);
 
-                      case 24:
+                                  if (!(_context3.t0.message.trim() === 'Error: not opened')) {
+                                    _context3.next = 26;
+                                    break;
+                                  }
+
+                                  console.log('Browser closed unexpectedly; reopening, running again');
+                                  _context3.next = 25;
+                                  return relaunchBrowser();
+
+                                case 25:
+                                  runRatios(req, res, url);
+
+                                case 26:
+                                  res.json({ error: true, msg: _context3.t0.message });
+
+                                case 27:
+                                case 'end':
+                                  return _context3.stop();
+                              }
+                            }
+                          }, _callee3, undefined, [[1, 15]]);
+                        }))));
+
+                      case 2:
                       case 'end':
-                        return _context3.stop();
+                        return _context4.stop();
                     }
                   }
-                }, _callee3, undefined, [[0, 18]]);
-              })));
+                }, _callee4, undefined);
+              }));
 
-            case 3:
-            case 'end':
-              return _context4.stop();
-          }
+              return function runRatios(_x2, _x3, _x4) {
+                return _ref4.apply(this, arguments);
+              };
+            }();
+
+            runScreenshot = function () {
+              var _ref7 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee6(req, res, url) {
+                return _regenerator2.default.wrap(function _callee6$(_context6) {
+                  while (1) {
+                    switch (_context6.prev = _context6.next) {
+                      case 0:
+                        _context6.next = 2;
+                        return queue.add(countPages((0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5() {
+                          var page, _ref9, newPage, ratios, screenshot;
+
+                          return _regenerator2.default.wrap(function _callee5$(_context5) {
+                            while (1) {
+                              switch (_context5.prev = _context5.next) {
+                                case 0:
+                                  page = void 0;
+                                  _context5.prev = 1;
+                                  _context5.next = 4;
+                                  return (0, _pageActions.openPage)({
+                                    url: url,
+                                    closeOnError: false,
+                                    browser: browser
+                                  });
+
+                                case 4:
+                                  _ref9 = _context5.sent;
+                                  newPage = _ref9.page;
+
+                                  page = newPage;
+                                  _context5.next = 9;
+                                  return (0, _pageActions.getRatios)(page);
+
+                                case 9:
+                                  ratios = _context5.sent;
+                                  _context5.next = 12;
+                                  return (0, _pageActions.screenshotTweet)(page);
+
+                                case 12:
+                                  screenshot = _context5.sent;
+                                  _context5.next = 15;
+                                  return page.close();
+
+                                case 15:
+                                  res.json({ screenshot: process.cwd() + '/' + screenshot, ratios: ratios });
+                                  _context5.next = 29;
+                                  break;
+
+                                case 18:
+                                  _context5.prev = 18;
+                                  _context5.t0 = _context5['catch'](1);
+
+                                  if (!page) {
+                                    _context5.next = 23;
+                                    break;
+                                  }
+
+                                  _context5.next = 23;
+                                  return page.close();
+
+                                case 23:
+                                  if (!(_context5.t0.message.trim() === 'Error: not opened')) {
+                                    _context5.next = 28;
+                                    break;
+                                  }
+
+                                  console.log('Browser closed unexpectedly; reopening, running again');
+                                  _context5.next = 27;
+                                  return relaunchBrowser();
+
+                                case 27:
+                                  runRatios(req, res, url);
+
+                                case 28:
+                                  res.json({ error: true, msg: _context5.t0.message });
+
+                                case 29:
+                                case 'end':
+                                  return _context5.stop();
+                              }
+                            }
+                          }, _callee5, undefined, [[1, 18]]);
+                        }))));
+
+                      case 2:
+                      case 'end':
+                        return _context6.stop();
+                    }
+                  }
+                }, _callee6, undefined);
+              }));
+
+              return function runScreenshot(_x5, _x6, _x7) {
+                return _ref7.apply(this, arguments);
+              };
+            }();
+
+            app.post('/ratios', function (req, res) {
+              return runRatios(req, res, req.body.url);
+            });
+            app.get('/ratios', function (req, res) {
+              return runRatios(req, res, req.query.url);
+            });
+
+            app.post('/screenshot', function (req, res) {
+              return runScreenshot(req, res, req.body.url);
+            });
+            app.get('/screenshot', function (req, res) {
+              return runScreenshot(req, res, req.query.url);
+            });
+
+            console.log('Starting server on port 3000');
+            server = app.listen(3000);
+            return _context7.abrupt('return', { server: server, browser: browser });
+
+          case 17:
+          case 'end':
+            return _context7.stop();
         }
-      }, _callee4, undefined);
-    }));
+      }
+    }, _callee7, undefined);
+  }));
 
-    return function (_x4, _x5) {
-      return _ref4.apply(this, arguments);
-    };
-  }());
-
-  console.log('Starting server on port 3000');
-  var server = app.listen(3000);
-  return { server: server, browser: browser };
-};
+  return function startServer() {
+    return _ref2.apply(this, arguments);
+  };
+}();
 
 exports.default = startServer;

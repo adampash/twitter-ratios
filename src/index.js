@@ -52,19 +52,19 @@ const main = async () => {
   if (cli.flags.server) {
     const { server, browser } = startServer();
     process.on('SIGTERM', async () => {
-      console.log('closing gracefully');
-      server.close();
-      console.log('server closed; exiting');
+      console.log('SIGTERM: closing gracefully');
       await browser.close();
       console.log('browser closed');
+      server.close();
+      console.log('server closed; exiting');
       process.exit(0);
     });
     process.on('SIGINT', async () => {
-      console.log('closing gracefully');
-      server.close();
-      console.log('server closed; exiting');
+      console.log('SIGINT: closing gracefully');
       await browser.close();
       console.log('browser closed');
+      server.close();
+      console.log('server closed; exiting');
       process.exit(0);
     });
   }

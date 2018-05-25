@@ -5,12 +5,12 @@ import puppeteer from 'puppeteer';
 
 import { getRatios, openPage, screenshotTweet } from './page-actions';
 
-const queue = new PQueue({ concurrency: 8 });
+const queue = new PQueue({ concurrency: 1 });
+let pagesOpened = 0;
+let browser;
 
-const startServer = () => {
-  const app = express();
-  app.use(bodyParser.json());
-  const browser = puppeteer.launch({
+const launchBrowser = () =>
+  puppeteer.launch({
     ...(process.env.CHROME_EXECUTABLE_PATH
       ? {
           executablePath: process.env.CHROME_EXECUTABLE_PATH,
@@ -19,6 +19,31 @@ const startServer = () => {
       : {}),
     timeout: 10000, // must launch in 10 seconds
   });
+
+const relaunchBrowser = async () => {
+  if (browser) await browser.close();
+  browser = await launchBrowser();
+};
+
+const startServer = async () => {
+  const app = express();
+  app.use(bodyParser.json());
+
+  await relaunchBrowser();
+
+  const countPages = async fn => {
+    if (pagesOpened > 10) {
+      try {
+        console.log('closing and reopening browser');
+        await relaunchBrowser();
+        pagesOpened = 0;
+      } catch (e) {
+        console.log(`Error restarting browser:`, e);
+      }
+    }
+    pagesOpened += 1;
+    fn();
+  };
 
   app.get('/ping', (req, res) => {
     res.send('pong');
@@ -31,60 +56,69 @@ const startServer = () => {
   });
 
   const runRatios = async (req, res, url) => {
-    let page;
-    await queue.add(async () => {
-      try {
-        console.log('running ratio...');
-        console.log(`queueCount()`, queueCount());
-        // const { url } = req.body;
-        const { page: newPage } = await openPage({
-          url,
-          closeOnError: false,
-          browser,
-        });
-        page = newPage;
-        const ratios = await getRatios(page);
-        console.log(`ratios`, ratios);
-        await page.close();
-        res.json(ratios);
-      } catch (e) {
-        if (page) await page.close();
-        console.log('error!', e);
-        if (e.message.trim() === 'Error: not opened') {
-          console.log('Browser closed unexpectedly; reopening, running again');
-          await browser.close();
-          await browser.open();
-          runRatios(req, res, url);
+    await queue.add(
+      countPages(async () => {
+        let page;
+        try {
+          const { page: newPage } = await openPage({
+            url,
+            closeOnError: false,
+            browser,
+          });
+          page = newPage;
+          const ratios = await getRatios(page);
+          await page.close();
+          res.json(ratios);
+        } catch (e) {
+          if (page) await page.close();
+          console.log('error!', e);
+          if (e.message.trim() === 'Error: not opened') {
+            console.log(
+              'Browser closed unexpectedly; reopening, running again'
+            );
+            await relaunchBrowser();
+            runRatios(req, res, url);
+          }
+          res.json({ error: true, msg: e.message });
         }
-        res.json({ error: true, msg: e.message });
-      }
-    });
+      })
+    );
+  };
+  const runScreenshot = async (req, res, url) => {
+    await queue.add(
+      countPages(async () => {
+        let page;
+        try {
+          const { page: newPage } = await openPage({
+            url,
+            closeOnError: false,
+            browser,
+          });
+          page = newPage;
+          const ratios = await getRatios(page);
+          const screenshot = await screenshotTweet(page);
+          await page.close();
+          res.json({ screenshot: `${process.cwd()}/${screenshot}`, ratios });
+        } catch (e) {
+          if (page) await page.close();
+          if (e.message.trim() === 'Error: not opened') {
+            console.log(
+              'Browser closed unexpectedly; reopening, running again'
+            );
+            await relaunchBrowser();
+            runRatios(req, res, url);
+          }
+          res.json({ error: true, msg: e.message });
+        }
+      })
+    );
   };
 
   app.post('/ratios', (req, res) => runRatios(req, res, req.body.url));
   app.get('/ratios', (req, res) => runRatios(req, res, req.query.url));
 
-  app.post('/screenshot', async (req, res) => {
-    let page;
-    await queue.add(async () => {
-      try {
-        const { url } = req.body;
-        const { page: newPage } = await openPage({
-          url,
-          closeOnError: false,
-          browser,
-        });
-        page = newPage;
-        const ratios = await getRatios(page);
-        const screenshot = await screenshotTweet(page);
-        await page.close();
-        res.json({ screenshot: `${process.cwd()}/${screenshot}`, ratios });
-      } catch (e) {
-        if (page) await page.close();
-        res.json({ error: true, msg: e.message });
-      }
-    });
-  });
+  app.post('/screenshot', (req, res) => runScreenshot(req, res, req.body.url));
+  app.get('/screenshot', (req, res) => runScreenshot(req, res, req.query.url));
 
   console.log('Starting server on port 3000');
   const server = app.listen(3000);

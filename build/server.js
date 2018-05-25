@@ -52,12 +52,15 @@ var startServer = function startServer() {
     res.send('pong');
   });
 
+  var queueCount = function queueCount() {
+    return 'queue len: ' + queue.size + '; queue pending: ' + queue.pending;
+  };
   app.get('/queue', function (req, res) {
-    res.send('queue len: ' + queue.size + '; queue pending: ' + queue.pending);
+    res.send(queueCount());
   });
 
-  app.post('/ratios', function () {
-    var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(req, res) {
+  var runRatios = function () {
+    var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(req, res, url) {
       var page;
       return _regenerator2.default.wrap(function _callee2$(_context2) {
         while (1) {
@@ -66,60 +69,66 @@ var startServer = function startServer() {
               page = void 0;
               _context2.next = 3;
               return queue.add((0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
-                var url, _ref3, newPage, ratios;
+                var _ref3, newPage, ratios;
 
                 return _regenerator2.default.wrap(function _callee$(_context) {
                   while (1) {
                     switch (_context.prev = _context.next) {
                       case 0:
                         _context.prev = 0;
-                        url = req.body.url;
-                        _context.next = 4;
+
+                        console.log('running ratio...');
+                        console.log('queueCount()', queueCount());
+                        // const { url } = req.body;
+                        _context.next = 5;
                         return (0, _pageActions.openPage)({
                           url: url,
                           closeOnError: false,
                           browser: browser
                         });
 
-                      case 4:
+                      case 5:
                         _ref3 = _context.sent;
                         newPage = _ref3.page;
 
                         page = newPage;
-                        _context.next = 9;
+                        _context.next = 10;
                         return (0, _pageActions.getRatios)(page);
 
-                      case 9:
+                      case 10:
                         ratios = _context.sent;
-                        _context.next = 12;
+
+                        console.log('ratios', ratios);
+                        _context.next = 14;
                         return page.close();
 
-                      case 12:
+                      case 14:
                         res.json(ratios);
-                        _context.next = 21;
+                        _context.next = 24;
                         break;
 
-                      case 15:
-                        _context.prev = 15;
+                      case 17:
+                        _context.prev = 17;
                         _context.t0 = _context['catch'](0);
 
                         if (!page) {
-                          _context.next = 20;
+                          _context.next = 22;
                           break;
                         }
 
-                        _context.next = 20;
+                        _context.next = 22;
                         return page.close();
 
-                      case 20:
+                      case 22:
+                        console.log('error!', _context.t0);
                         res.json({ error: true, msg: _context.t0.message });
 
-                      case 21:
+                      case 24:
                       case 'end':
                         return _context.stop();
                     }
                   }
-                }, _callee, undefined, [[0, 15]]);
+                }, _callee, undefined, [[0, 17]]);
               })));
 
             case 3:
@@ -130,10 +139,17 @@ var startServer = function startServer() {
       }, _callee2, undefined);
     }));
 
-    return function (_x, _x2) {
+    return function runRatios(_x, _x2, _x3) {
       return _ref.apply(this, arguments);
     };
-  }());
+  }();
+
+  app.post('/ratios', function (req, res) {
+    return runRatios(req, res, req.body.url);
+  });
+  app.get('/ratios', function (req, res) {
+    return runRatios(req, res, req.query.url);
+  });
 
   app.post('/screenshot', function () {
     var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(req, res) {
@@ -214,13 +230,13 @@ var startServer = function startServer() {
       }, _callee4, undefined);
     }));
 
-    return function (_x3, _x4) {
+    return function (_x4, _x5) {
       return _ref4.apply(this, arguments);
     };
   }());
 
-  console.log('Starting server on port 3000');
-  var server = app.listen(3000);
+  console.log('Starting server on port 3001');
+  var server = app.listen(3001);
   return { server: server, browser: browser };
 };
 

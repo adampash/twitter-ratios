@@ -35,7 +35,7 @@ export const openPage = async ({
 };
 
 export const screenshotTweet = async page => {
-  await page.waitForSelector(ORIGINAL_TWEET, { timeout: 10000 });
+  await page.waitForSelector(ORIGINAL_TWEET, { timeout: 5000 });
   const tweet = await page.$(ORIGINAL_TWEET);
 
   // wait 6 seconds to give media time to load

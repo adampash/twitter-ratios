@@ -116,7 +116,7 @@ var screenshotTweet = exports.screenshotTweet = function () {
         switch (_context2.prev = _context2.next) {
           case 0:
             _context2.next = 2;
-            return page.waitForSelector(_constants.ORIGINAL_TWEET, { timeout: 10000 });
+            return page.waitForSelector(_constants.ORIGINAL_TWEET, { timeout: 5000 });
 
           case 2:
             _context2.next = 4;

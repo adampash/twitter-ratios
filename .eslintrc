@@ -4,6 +4,7 @@
     "prettier"
   ],
   "globals": {
+    "$",
     "afterAll",
     "beforeAll",
     "beforeEach",

@@ -150,7 +150,8 @@ var screenshotTweet = exports.screenshotTweet = function () {
 
 var getRatios = exports.getRatios = function () {
   var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(page) {
-    var statsStrings;
+    var _ref5, _ref6, statsStrings, poll;
+
     return _regenerator2.default.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
@@ -161,17 +162,23 @@ var getRatios = exports.getRatios = function () {
           case 2:
             _context3.next = 4;
             return page.evaluate(function () {
+              var POLL_SELECTOR = '.tweet.permalink-tweet .card-type-poll4choice_text_only';
+
+              var hasPoll = $(POLL_SELECTOR).length > 0;
               var SELECTOR = '.tweet.permalink-tweet .stream-item-footer [data-tweet-stat-count]';
               // eslint-disable-next-line
               var result = $(SELECTOR).toArray().map(function (s) {
                 return s.innerText;
               });
-              return result;
+              return [result, hasPoll];
             });
 
           case 4:
-            statsStrings = _context3.sent;
-            return _context3.abrupt('return', statsStrings.reduce(function (acc, text) {
+            _ref5 = _context3.sent;
+            _ref6 = (0, _slicedToArray3.default)(_ref5, 2);
+            statsStrings = _ref6[0];
+            poll = _ref6[1];
+            return _context3.abrupt('return', (0, _extends4.default)({}, statsStrings.reduce(function (acc, text) {
               if (_constants.STATS_RE.test(text)) {
                 // eslint-disable-next-line no-unused-vars
                 var _text$match = text.match(_constants.STATS_RE),
@@ -183,9 +190,11 @@ var getRatios = exports.getRatios = function () {
                 return (0, _extends4.default)({}, acc, (0, _defineProperty3.default)({}, _constants.KEY_MAP[key], parseInt(val.replace(/\D/g, ''), 10)));
               }
               return acc;
-            }, {}));
+            }, {}), {
+              poll: poll
+            }));
 
-          case 6:
+          case 9:
           case 'end':
             return _context3.stop();
         }
@@ -199,8 +208,8 @@ var getRatios = exports.getRatios = function () {
 }();
 
 var getScreenshotAndRatios = exports.getScreenshotAndRatios = function () {
-  var _ref5 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(url) {
-    var _ref6, page, browser, screenshot, ratios;
+  var _ref7 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(url) {
+    var _ref8, page, browser, screenshot, ratios;
 
     return _regenerator2.default.wrap(function _callee4$(_context4) {
       while (1) {
@@ -210,9 +219,9 @@ var getScreenshotAndRatios = exports.getScreenshotAndRatios = function () {
             return openPage({ url: url });
 
           case 2:
-            _ref6 = _context4.sent;
-            page = _ref6.page;
-            browser = _ref6.browser;
+            _ref8 = _context4.sent;
+            page = _ref8.page;
+            browser = _ref8.browser;
             _context4.prev = 5;
             _context4.next = 8;
             return screenshotTweet(page);
@@ -247,13 +256,13 @@ var getScreenshotAndRatios = exports.getScreenshotAndRatios = function () {
   }));
 
   return function getScreenshotAndRatios(_x4) {
-    return _ref5.apply(this, arguments);
+    return _ref7.apply(this, arguments);
   };
 }();
 
 var getRatiosFromUrl = exports.getRatiosFromUrl = function () {
-  var _ref7 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(url) {
-    var _ref8, page, browser, stats;
+  var _ref9 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(url) {
+    var _ref10, page, browser, stats;
 
     return _regenerator2.default.wrap(function _callee5$(_context5) {
       while (1) {
@@ -263,9 +272,9 @@ var getRatiosFromUrl = exports.getRatiosFromUrl = function () {
             return openPage({ url: url });
 
           case 2:
-            _ref8 = _context5.sent;
-            page = _ref8.page;
-            browser = _ref8.browser;
+            _ref10 = _context5.sent;
+            page = _ref10.page;
+            browser = _ref10.browser;
             _context5.prev = 5;
             _context5.next = 8;
             return getRatios(page);
@@ -295,6 +304,6 @@ var getRatiosFromUrl = exports.getRatiosFromUrl = function () {
   }));
 
   return function getRatiosFromUrl(_x5) {
-    return _ref7.apply(this, arguments);
+    return _ref9.apply(this, arguments);
   };
 }();

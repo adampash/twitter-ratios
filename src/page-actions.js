@@ -48,26 +48,33 @@ export const screenshotTweet = async page => {
 
 export const getRatios = async page => {
   await page.waitForSelector(REPLY_SELECTOR, { timeout: 10000 });
-  const statsStrings = await page.evaluate(() => {
+  const [statsStrings, poll] = await page.evaluate(() => {
+    const POLL_SELECTOR =
+      '.tweet.permalink-tweet .card-type-poll4choice_text_only';
+
+    const hasPoll = $(POLL_SELECTOR).length > 0;
     const SELECTOR =
       '.tweet.permalink-tweet .stream-item-footer [data-tweet-stat-count]';
     // eslint-disable-next-line
     const result = $(SELECTOR)
       .toArray()
       .map(s => s.innerText);
-    return result;
+    return [result, hasPoll];
   });
-  return statsStrings.reduce((acc, text) => {
-    if (STATS_RE.test(text)) {
-      // eslint-disable-next-line no-unused-vars
-      const [_, val, key] = text.match(STATS_RE);
-      return {
-        ...acc,
-        [KEY_MAP[key]]: parseInt(val.replace(/\D/g, ''), 10),
-      };
-    }
-    return acc;
-  }, {});
+  return {
+    ...statsStrings.reduce((acc, text) => {
+      if (STATS_RE.test(text)) {
+        // eslint-disable-next-line no-unused-vars
+        const [_, val, key] = text.match(STATS_RE);
+        return {
+          ...acc,
+          [KEY_MAP[key]]: parseInt(val.replace(/\D/g, ''), 10),
+        };
+      }
+      return acc;
+    }, {}),
+    poll,
+  };
 };
 
 export const getScreenshotAndRatios = async url => {

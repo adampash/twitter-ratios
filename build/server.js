@@ -369,9 +369,10 @@ var startServer = function () {
                         return relaunchBrowser();
 
                       case 2:
-                        res.send("Browser restarted");
+                        logger.info('Browser restarted');
+                        res.send('Browser restarted');
 
-                      case 3:
+                      case 4:
                       case 'end':
                         return _context7.stop();
                     }

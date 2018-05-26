@@ -50,22 +50,32 @@ const main = async () => {
     return;
   }
   if (cli.flags.server) {
-    const { server, browser } = startServer();
+    const { server, browser } = await startServer();
     process.on('SIGTERM', async () => {
-      console.log('SIGTERM: closing gracefully');
-      await browser.close();
-      console.log('browser closed');
-      server.close();
-      console.log('server closed; exiting');
-      process.exit(0);
+      try {
+        console.log('SIGTERM: closing gracefully');
+        browser.close();
+        console.log('browser closed');
+        server.close();
+        console.log('server closed; exiting');
+        process.exit(0);
+      } catch (e) {
+        console.log('unable to close everything, just leave');
+        process.exit(0);
+      }
     });
     process.on('SIGINT', async () => {
-      console.log('SIGINT: closing gracefully');
-      await browser.close();
-      console.log('browser closed');
-      server.close();
-      console.log('server closed; exiting');
-      process.exit(0);
+      try {
+        console.log('SIGINT: closing gracefully');
+        browser.close();
+        console.log('browser closed');
+        server.close();
+        console.log('server closed; exiting');
+        process.exit(0);
+      } catch (e) {
+        console.log('unable to close everything, just leave');
+        process.exit(0);
+      }
     });
   }
   if (cli.flags.ratios || (!cli.flags.ratios && !cli.flags.screenshot)) {

@@ -43,7 +43,7 @@ var cli = (0, _meow2.default)('\n    A CLI for getting the stats of a tweet: rep
 
 var main = function () {
   var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3() {
-    var _cli$input, url, data, _startServer, server, browser, _data;
+    var _cli$input, url, data, _ref2, server, browser, _data;
 
     return _regenerator2.default.wrap(function _callee3$(_context3) {
       while (1) {
@@ -75,69 +75,83 @@ var main = function () {
             return _context3.abrupt('return');
 
           case 10:
-            if (cli.flags.server) {
-              _startServer = (0, _server2.default)(), server = _startServer.server, browser = _startServer.browser;
-
-              process.on('SIGTERM', (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
-                return _regenerator2.default.wrap(function _callee$(_context) {
-                  while (1) {
-                    switch (_context.prev = _context.next) {
-                      case 0:
-                        console.log('SIGTERM: closing gracefully');
-                        _context.next = 3;
-                        return browser.close();
-
-                      case 3:
-                        console.log('browser closed');
-                        server.close();
-                        console.log('server closed; exiting');
-                        process.exit(0);
-
-                      case 7:
-                      case 'end':
-                        return _context.stop();
-                    }
-                  }
-                }, _callee, undefined);
-              })));
-              process.on('SIGINT', (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2() {
-                return _regenerator2.default.wrap(function _callee2$(_context2) {
-                  while (1) {
-                    switch (_context2.prev = _context2.next) {
-                      case 0:
-                        console.log('SIGINT: closing gracefully');
-                        _context2.next = 3;
-                        return browser.close();
-
-                      case 3:
-                        console.log('browser closed');
-                        server.close();
-                        console.log('server closed; exiting');
-                        process.exit(0);
-
-                      case 7:
-                      case 'end':
-                        return _context2.stop();
-                    }
-                  }
-                }, _callee2, undefined);
-              })));
-            }
-
-            if (!(cli.flags.ratios || !cli.flags.ratios && !cli.flags.screenshot)) {
-              _context3.next = 16;
+            if (!cli.flags.server) {
+              _context3.next = 18;
               break;
             }
 
-            _context3.next = 14;
+            _context3.next = 13;
+            return (0, _server2.default)();
+
+          case 13:
+            _ref2 = _context3.sent;
+            server = _ref2.server;
+            browser = _ref2.browser;
+
+            process.on('SIGTERM', (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
+              return _regenerator2.default.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      try {
+                        console.log('SIGTERM: closing gracefully');
+                        browser.close();
+                        console.log('browser closed');
+                        server.close();
+                        console.log('server closed; exiting');
+                        process.exit(0);
+                      } catch (e) {
+                        console.log('unable to close everything, just leave');
+                        process.exit(0);
+                      }
+
+                    case 1:
+                    case 'end':
+                      return _context.stop();
+                  }
+                }
+              }, _callee, undefined);
+            })));
+            process.on('SIGINT', (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2() {
+              return _regenerator2.default.wrap(function _callee2$(_context2) {
+                while (1) {
+                  switch (_context2.prev = _context2.next) {
+                    case 0:
+                      try {
+                        console.log('SIGINT: closing gracefully');
+                        browser.close();
+                        console.log('browser closed');
+                        server.close();
+                        console.log('server closed; exiting');
+                        process.exit(0);
+                      } catch (e) {
+                        console.log('unable to close everything, just leave');
+                        process.exit(0);
+                      }
+
+                    case 1:
+                    case 'end':
+                      return _context2.stop();
+                  }
+                }
+              }, _callee2, undefined);
+            })));
+
+          case 18:
+            if (!(cli.flags.ratios || !cli.flags.ratios && !cli.flags.screenshot)) {
+              _context3.next = 23;
+              break;
+            }
+
+            _context3.next = 21;
             return (0, _pageActions.getRatiosFromUrl)(url);
 
-          case 14:
+          case 21:
             _data = _context3.sent;
 
             console.log(JSON.stringify(_data));
 
-          case 16:
+          case 23:
           case 'end':
             return _context3.stop();
         }

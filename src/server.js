@@ -122,6 +122,11 @@ const startServer = async () => {
   app.post('/screenshot', (req, res) => runScreenshot(req, res, req.body.url));
   app.get('/screenshot', (req, res) => runScreenshot(req, res, req.query.url));
 
+  app.get('/restart-browser', async (req, res) => {
+    await relaunchBrowser()
+    res.send("Browser restarted")
+  })
+
   logger.info('Starting server on port 3000');
   const server = app.listen(3000);
   return { server, browser };

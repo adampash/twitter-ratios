@@ -85,17 +85,17 @@ var relaunchBrowser = function () {
 }();
 
 var startServer = function () {
-  var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee7() {
+  var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee8() {
     var app, countPages, queueCount, runRatios, runScreenshot, server;
-    return _regenerator2.default.wrap(function _callee7$(_context7) {
+    return _regenerator2.default.wrap(function _callee8$(_context8) {
       while (1) {
-        switch (_context7.prev = _context7.next) {
+        switch (_context8.prev = _context8.next) {
           case 0:
             app = (0, _express2.default)();
 
             app.use(_bodyParser2.default.json());
 
-            _context7.next = 4;
+            _context8.next = 4;
             return relaunchBrowser();
 
           case 4:
@@ -359,16 +359,41 @@ var startServer = function () {
               return runScreenshot(req, res, req.query.url);
             });
 
+            app.get('/restart-browser', function () {
+              var _ref10 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee7(req, res) {
+                return _regenerator2.default.wrap(function _callee7$(_context7) {
+                  while (1) {
+                    switch (_context7.prev = _context7.next) {
+                      case 0:
+                        _context7.next = 2;
+                        return relaunchBrowser();
+
+                      case 2:
+                        res.send("Browser restarted");
+
+                      case 3:
+                      case 'end':
+                        return _context7.stop();
+                    }
+                  }
+                }, _callee7, undefined);
+              }));
+
+              return function (_x8, _x9) {
+                return _ref10.apply(this, arguments);
+              };
+            }());
+
             logger.info('Starting server on port 3000');
             server = app.listen(3000);
-            return _context7.abrupt('return', { server: server, browser: browser });
+            return _context8.abrupt('return', { server: server, browser: browser });
 
-          case 17:
+          case 18:
           case 'end':
-            return _context7.stop();
+            return _context8.stop();
         }
       }
-    }, _callee7, undefined);
+    }, _callee8, undefined);
   }));
 
   return function startServer() {

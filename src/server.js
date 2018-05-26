@@ -124,6 +124,7 @@ const startServer = async () => {
 
   app.get('/restart-browser', async (req, res) => {
     await relaunchBrowser()
+    logger.debug("Browser restarted")
     res.send("Browser restarted")
   })
 
